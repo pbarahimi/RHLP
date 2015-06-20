@@ -81,4 +81,10 @@ public class Route {
 		return this.m;
 	}
 	
+	public String toString(){
+		String result="";
+		result="("+i+","+j+","+k+","+m+")";
+		return result;
+	}
+	
 }

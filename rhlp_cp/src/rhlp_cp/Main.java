@@ -19,7 +19,7 @@ public class Main {
 //			System.out.println(p.origin+" - "+p.destiation+" - "+p.flow);
 //		}
 		
-		for (Node n:prob.nodes){
+		/*for (Node n:prob.nodes){
 			System.out.println(n.isHub()+" - "+n.getIndex());
 		}
 		List<Vertex> hubs=new ArrayList<Vertex>();
@@ -27,7 +27,11 @@ public class Main {
 		for (Node n:prob.nodes){
 			if (n.isHub())
 				hubs.add(new Vertex(n));
-		}
+		}*/
 //		Dijkstra.shortestPath(new Vertex(prob.nodes.get(0)), new Vertex(prob.nodes.get(9)), hubs, prob.distance, prob.alpha);
+		
+		for (Pair p:prob.pairs){
+			System.out.println("The shortest distance from node "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is : "+ p.getShortestPath()+" with type "+p.getShortestPath().getType());
+		}
 	}
 }

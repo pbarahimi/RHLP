@@ -17,16 +17,17 @@ public class Pair {
 		this.shortestPath=shortestPath(prob);
 	}
 	
-	public Route shortestPath(Problem prob){
+	private Route shortestPath(Problem prob){
 		List<Vertex> vertices=new ArrayList<Vertex>();
 		for (Node n:prob.nodes){
 			if (!n.equals(origin) && !n.equals(destination))
 			vertices.add(new Vertex(n));
 		}
-		System.out.println("The Size of the vertices matrix is: "+ vertices.size());
-		List<Vertex> shortestPath=Dijkstra.shortestPath(new Vertex(this.origin), new Vertex(this.destination), vertices, prob.distance, prob.alpha);
 		
+		List<Vertex> shortestPath=Dijkstra.shortestPath(new Vertex(this.origin), new Vertex(this.destination), vertices, prob.distance, prob.alpha);
+				
 		// Cast vertices to nodes and return the route.
+		System.out.println("The shortest path is: "+ shortestPath.toString());
 		if (shortestPath.size()==3 || shortestPath.size()==4){
 			Node i=prob.nodes.get(shortestPath.get(0).index);
 			Node k=prob.nodes.get(shortestPath.get(1).index);

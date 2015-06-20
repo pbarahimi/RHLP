@@ -13,12 +13,14 @@ class Vertex implements Comparable<Vertex> {
 	public double minDistance = Double.POSITIVE_INFINITY;
 	public Vertex previous;
 	public int index;
+	public boolean hub = false;
 
-	public Vertex(Node n){
-		this.name=n.getIndex()+"";
-		this.index=n.getIndex();
+	public Vertex(Node n) {
+		this.name = n.getIndex() + "";
+		this.index = n.getIndex();
+		this.hub = n.isHub();
 	}
-	
+
 	public Vertex(String argName) {
 		name = argName;
 	}
@@ -30,6 +32,10 @@ class Vertex implements Comparable<Vertex> {
 	public int compareTo(Vertex other) {
 		return Double.compare(minDistance, other.minDistance);
 	}
+
+	public boolean isHub() {
+		return this.hub;
+	}
 }
 
 class Edge {
@@ -40,10 +46,10 @@ class Edge {
 		target = argTarget;
 		weight = argWeight;
 	}
-	
-	public String toString(){
-		return this.target+"";
-	}	
+
+	public String toString() {
+		return this.target + "";
+	}
 }
 
 public class Dijkstra {
@@ -54,7 +60,7 @@ public class Dijkstra {
 
 		while (!vertexQueue.isEmpty()) {
 			Vertex u = vertexQueue.poll();
-
+			System.out.println("size of adjacencies for "+u.toString()+" is "+u.adjacencies.size());
 			// Visit each edge exiting u
 			for (Edge e : u.adjacencies) {
 				Vertex v = e.target;
@@ -78,32 +84,51 @@ public class Dijkstra {
 		return path;
 	}
 
-	public static List<Vertex> shortestPath(Vertex o, Vertex d, List<Vertex> vertices, double[][] distance, double alpha) {
-		o.adjacencies=new ArrayList<Edge>();
+	public static List<Vertex> shortestPath(Vertex o, Vertex d,
+			List<Vertex> vertices, double[][] distance, double alpha) {
+
+		/**
+		 * Edges are drawn between every hub nodes, and also between every hub
+		 * and origin/destination
+		 */
+		o.adjacencies = new ArrayList<Edge>();
 		d.adjacencies=new ArrayList<Edge>();
-		for (Vertex v:vertices){
+		for (Vertex v : vertices) {
 			o.adjacencies.add(new Edge(v, distance[o.index][v.index]));
-//			d.adjacencies.add(new Edge(v, distance[d.index][v.index]));
 		}
-		
-		for (Vertex v1:vertices){
-			v1.adjacencies=new ArrayList<Edge>();
-			for (Vertex v2:vertices){
-				if (!v1.equals(v2)){
-					v1.adjacencies.add(new Edge(v2, (1-alpha)*distance[v1.index][v2.index]));
+
+		for (Vertex v1 : vertices) {
+			v1.adjacencies = new ArrayList<Edge>();
+			for (Vertex v2 : vertices) {
+				if (!v1.equals(v2)) {
+					v1.adjacencies.add(new Edge(v2, (1 - alpha)
+							* distance[v1.index][v2.index]));
 				}
 			}
 			v1.adjacencies.add(new Edge(d, distance[v1.index][d.index]));
 		}
-		
-		/*
-		 * System.out.println("is "+o.index+"adjacent to "+d.index+"? "+o.
-		 * adjacencies.contains(d)); computePaths(o);
-		 * System.out.println("Distance from " + o.toString()+ " to " +
-		 * d.toString() + ": " + d.minDistance);
+
+		/**
+		 * if at least one of the origin and destination nodes is a hub, then an
+		 * edge is added to the graph
 		 */
+		if (o.isHub() && d.isHub()) {
+			o.adjacencies.add(new Edge(d, (1 - alpha)
+					* distance[o.index][d.index]));
+		} else if (o.isHub() || d.isHub()) {
+			o.adjacencies.add(new Edge(d, distance[o.index][d.index]));
+		}
+		
+		computePaths(o);
+
+		/*
+		 * System.out.println("is "+o.index+" adjacent to "+d.index+"? "+o.
+		 * adjacencies.contains(d)); System.out.println("Distance from " +
+		 * o.toString()+ " to " + d.toString() + ": " + d.minDistance);
+		 */
+
 		List<Vertex> path = getShortestPathTo(d);
-//		System.out.println("The shortest path is: "+path.toString());
+		// System.out.println("The shortest path is: "+path.toString());
 		return path;
 	}
 }
