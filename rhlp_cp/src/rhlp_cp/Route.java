@@ -8,7 +8,7 @@ public class Route {
 	private final int type;
 	private final double cost;
 //	private int level;
-	
+
 	public Route(Node i,Node j,Node k,Node m,double alpha, double[][] distance){
 		this.i=i.getIndex();
 		this.j=j.getIndex();
@@ -80,4 +80,5 @@ public class Route {
 	public int getM(){
 		return this.m;
 	}
+	
 }

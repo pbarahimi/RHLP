@@ -96,29 +96,14 @@ public class Dijkstra {
 			v1.adjacencies.add(new Edge(d, distance[v1.index][d.index]));
 		}
 		
-		System.out.println("is "+o.index+"adjacent to "+d.index+"? "+o.adjacencies.contains(d));
-		
-		computePaths(o);
-		System.out.println("Distance to " + d.toString() + ": " + d.minDistance);
+		/*
+		 * System.out.println("is "+o.index+"adjacent to "+d.index+"? "+o.
+		 * adjacencies.contains(d)); computePaths(o);
+		 * System.out.println("Distance from " + o.toString()+ " to " +
+		 * d.toString() + ": " + d.minDistance);
+		 */
 		List<Vertex> path = getShortestPathTo(d);
-/*		System.out.println("Path: ");
-		for (Vertex v:path){
-			System.out.println(v.index);
-		}
-		
-		System.out.println("The origin node: "+o.toString());
-		for (Edge e:o.adjacencies){
-			System.out.println(e.toString()+" - " + e.weight);
-		}
-		
-		System.out.println("\nThe destination ("+d.toString()+")edges: ");
-		for (Edge e:d.adjacencies){
-			System.out.println(e.toString()+" - " + e.weight);
-		}
-		System.out.println("\nThe destination ("+vertices.get(1).toString()+")edges: ");
-		for (Edge e:vertices.get(1).adjacencies){
-			System.out.println(e.toString()+" - " + e.weight);
-		}*/
+//		System.out.println("The shortest path is: "+path.toString());
 		return path;
 	}
 }

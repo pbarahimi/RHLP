@@ -34,7 +34,7 @@ public class Problem {
 		for (Node o:nodes){
 			for (Node d:nodes){
 				if (o.getIndex()>d.getIndex()){
-				this.pairs.add(new Pair(o,d,flow));
+				this.pairs.add(new Pair(o,d,this));
 				}
 			}
 		}
@@ -71,22 +71,24 @@ public class Problem {
 		
 		for (Pair p:pairs){
 			counter=0;
-			for (Route r:p.routes){
+			for (Route r:p.getRoutes()){
 			objFun+=(1-r.getFailProb(q))*Math.pow(q, counter++);
 			}
-			objFun*=p.flow*p.routes.get(0).getCost();
+			objFun*=p.flow*p.getShortestPath().getCost();
 			objFun+=this.nHub*this.fixedCharge[0];
 		}
 		return objFun;
 	}
 	
 	// Objective function
+
+	// Objective Function
 	public double objFun(){	
 		double objFun=0;
 		int counter;
 		for (Pair p:pairs){
 			counter=0;
-			for (Route r:p.routes){
+			for (Route r:p.getRoutes()){
 				objFun=r.getCost()*(1-r.getFailProb(q))*Math.pow(q, counter++);
 			}
 			objFun*=p.flow;
