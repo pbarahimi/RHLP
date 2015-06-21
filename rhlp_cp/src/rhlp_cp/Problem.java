@@ -23,7 +23,7 @@ public class Problem {
 		this.flow=MyArray.read(f);
 		this.fixedCharge=MyArray.read2(fC);
 		this.distance=Distance.get(coordinate);
-		this.nVar=coordinate[0].length;
+		this.nVar=coordinate.length;
 		
 		for (int i=0;i<coordinate.length;i++){
 			nodes.add(new Node(i, coordinate[i][0], coordinate[i][1], false));

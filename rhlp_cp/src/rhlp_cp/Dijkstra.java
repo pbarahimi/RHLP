@@ -60,7 +60,7 @@ public class Dijkstra {
 
 		while (!vertexQueue.isEmpty()) {
 			Vertex u = vertexQueue.poll();
-			System.out.println("size of adjacencies for "+u.toString()+" is "+u.adjacencies.size());
+//			System.out.println("size of adjacencies for "+u.toString()+" is "+u.adjacencies.size());
 			// Visit each edge exiting u
 			for (Edge e : u.adjacencies) {
 				Vertex v = e.target;
@@ -112,12 +112,10 @@ public class Dijkstra {
 		 * if at least one of the origin and destination nodes is a hub, then an
 		 * edge is added to the graph
 		 */
-		if (o.isHub() && d.isHub()) {
-			o.adjacencies.add(new Edge(d, (1 - alpha)
-					* distance[o.index][d.index]));
-		} else if (o.isHub() || d.isHub()) {
+		if (o.isHub() && d.isHub()) 
+			o.adjacencies.add(new Edge(d, (1 - alpha)* distance[o.index][d.index]));
+		else if (o.isHub() || d.isHub()) 
 			o.adjacencies.add(new Edge(d, distance[o.index][d.index]));
-		}
 		
 		computePaths(o);
 

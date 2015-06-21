@@ -20,30 +20,51 @@ public class Pair {
 	private Route shortestPath(Problem prob){
 		List<Vertex> vertices=new ArrayList<Vertex>();
 		for (Node n:prob.nodes){
-			if (!n.equals(origin) && !n.equals(destination))
+			if (!n.equals(origin) && !n.equals(destination) && n.isHub())
 			vertices.add(new Vertex(n));
 		}
 		
 		List<Vertex> shortestPath=Dijkstra.shortestPath(new Vertex(this.origin), new Vertex(this.destination), vertices, prob.distance, prob.alpha);
 				
-		// Cast vertices to nodes and return the route.
-		System.out.println("The shortest path is: "+ shortestPath.toString());
-		if (shortestPath.size()==3 || shortestPath.size()==4){
-			Node i=prob.nodes.get(shortestPath.get(0).index);
-			Node k=prob.nodes.get(shortestPath.get(1).index);
-			Node m;
-			if (shortestPath.size()==3)
+		/**Cast vertices to nodes and return the route.*/
+//		System.out.println("The shortest path from "+this.origin+" to "+this.destination+" is: "+ shortestPath.toString());		
+		Node i=prob.nodes.get(shortestPath.get(0).index);
+		Node j=prob.nodes.get(shortestPath.get(shortestPath.size()-1).index);
+		Node k;
+		Node m;
+		
+		if (shortestPath.size()==2){
+			if (origin.isHub() && destination.isHub()){
+				k=prob.nodes.get(shortestPath.get(0).index);
 				m=prob.nodes.get(shortestPath.get(1).index);
-			else
+			} else if (origin.isHub() && !destination.isHub()){
+				k=prob.nodes.get(shortestPath.get(0).index);
+				m=prob.nodes.get(shortestPath.get(0).index);
+			} else {
+				k=prob.nodes.get(shortestPath.get(1).index);
+				m=prob.nodes.get(shortestPath.get(1).index);
+			}
+		}else if (shortestPath.size()==3){
+			if (!origin.isHub() && !destination.isHub()){
+				k=prob.nodes.get(shortestPath.get(1).index);
+				m=prob.nodes.get(shortestPath.get(1).index);
+			}else if(origin.isHub() && !destination.isHub()){
+				k=prob.nodes.get(shortestPath.get(0).index);
+				m=prob.nodes.get(shortestPath.get(1).index);
+			}else{
+				k=prob.nodes.get(shortestPath.get(1).index);
 				m=prob.nodes.get(shortestPath.get(2).index);
-			Node j=prob.nodes.get(shortestPath.get(shortestPath.size()-1).index);
-			Route result=new Route(i, j, k, m, prob.alpha, prob.distance);
-			return result;
-		} else{
+			}			
+		}else if (shortestPath.size()==4){
+			k=prob.nodes.get(shortestPath.get(1).index);
+			m=prob.nodes.get(shortestPath.get(2).index);
+		}else{
 			System.out.println("The shortest path is inconsistent, the route is: "+
 								shortestPath.toString());
 			return null;
-		}
+		}	
+		Route result=new Route(i, j, k, m, prob.alpha, prob.distance);
+		return result;
 	}
 
 	public List<Route> routes(){

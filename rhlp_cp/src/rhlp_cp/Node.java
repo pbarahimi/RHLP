@@ -32,6 +32,10 @@ public class Node implements Comparable<Node>{
 	public void setHub(){
 		this.hub=true;
 	}
+	
+	public String toString(){
+		return (this.index+"");
+	}
 
 	@Override
 	public int compareTo(Node j) {
