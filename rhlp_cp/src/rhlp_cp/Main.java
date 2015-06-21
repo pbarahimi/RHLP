@@ -3,10 +3,17 @@ package rhlp_cp;
 import java.util.ArrayList;
 import java.util.List;
 
+import yen_alg.DijkstraShortestPathAlg;
+import yen_alg.Graph;
+import yen_alg.Path;
+import yen_alg.VariableGraph;
+import yen_alg.YenTopKShortestPathsAlg;
+
 
 public class Main {
 	
 	public static void main(String[] args){
+		 long startTime = System.currentTimeMillis();
 		Problem prob=new Problem("coordinates.txt", "w.txt", "fixedcharge.txt",0.2);
 //		for (int i=0;i<Problem.distance[0].length;i++){
 //			for (int j=0;j<Problem.distance.length;j++){
@@ -41,6 +48,16 @@ public class Main {
 			System.out.println("The shortest distance from node "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is : "+ p.getShortestPath()+" with type "+p.getShortestPath().getType());
 		}*/
 		
-		System.out.println("The objective function: "+ prob.objFunLB());
+		Graph graph=new VariableGraph("test_5.txt");
+		System.out.println(graph.getAdjacentVertices(graph.getVertex(4)).toString());
+		YenTopKShortestPathsAlg yenAlg=new YenTopKShortestPathsAlg(graph);
+		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
+                graph.getVertex(4), graph.getVertex(5), 100);
+		System.out.println(":"+shortest_paths_list);
+		System.out.println(yenAlg.getResultList().size());
+		
+		long stopTime = System.currentTimeMillis();
+	      long elapsedTime = stopTime - startTime;
+	      System.out.println(elapsedTime);
 	}
 }
