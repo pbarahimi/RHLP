@@ -3,6 +3,7 @@ package rhlp_cp;
 import java.util.ArrayList;
 import java.util.List;
 
+import yen_alg.BaseVertex;
 import yen_alg.DijkstraShortestPathAlg;
 import yen_alg.Graph;
 import yen_alg.Path;
@@ -44,23 +45,26 @@ public class Main {
 			else
 				System.out.println("The shortest path for "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is: "+p.getShortestPath());
 		}*/
-		for (Pair p:prob.pairs){
-			System.out.println("The shortest distance from node "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is : "+ p.getShortestPath()+" with type "/*+p.getShortestPath().getCost()*/);
-		}
+		/*for (Pair p:prob.pairs){
+			System.out.println("The shortest distance from node "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is : "+ p.getShortestPath()+" with type "+p.getShortestPath().getCost());
+		}*/
 		
 //		Graph graph=new VariableGraph("test_5.txt");
-/*		Graph graph=new VariableGraph(prob.nodes.get(3), prob.nodes.get(9), prob);
-		System.out.println("The nodes adjacent to "+graph.getVertex(3)+": "+graph.getAdjacentVertices(graph.getVertex(3)).toString());
+		/*Graph graph=new VariableGraph(prob.nodes.get(0), prob.nodes.get(6), prob);
+		for (BaseVertex bv:graph.getVertexList()){
+			System.out.println("The nodes adjacent to "+bv+": "+graph.getAdjacentVertices(bv).toString());
+		}
 		YenTopKShortestPathsAlg yenAlg=new YenTopKShortestPathsAlg(graph);
 		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
-                graph.getVertex(3), graph.getVertex(9), 5);
+                graph.getVertex(0), graph.getVertex(6), 5);
 		System.out.println(":"+shortest_paths_list);
-		System.out.println(yenAlg.getResultList().size());*/
+		System.out.println(yenAlg.getResultList().size());
 		
 		long stopTime = System.currentTimeMillis();
 	      long elapsedTime = stopTime - startTime;
 	      System.out.println(elapsedTime);
+	      MyArray.print(prob.distance);*/
 	      
-	      MyArray.print(prob.distance);
+	      prob.printHubs();
 	}
 }

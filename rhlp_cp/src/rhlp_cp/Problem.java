@@ -1,10 +1,10 @@
 package rhlp_cp;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-
-import yen_alg.BaseGraph;
-import yen_alg.Graph;
+import java.util.Set;
 
 public class Problem {
 	public final int nVar;
@@ -65,6 +65,7 @@ public class Problem {
 		nodes.get(1).setHub();
 		nodes.get(3).setHub();
 		nodes.get(5).setHub();
+		nodes.get(7).setHub();
 	}
 
 	// Objective function lower bound
@@ -98,6 +99,13 @@ public class Problem {
 		}
 		objFun+=this.nHub*this.fixedCharge[0];
 		return objFun;
+	}
+	
+	public void printHubs(){
+		for (Node n:this.nodes){
+			if (n.isHub())
+				System.out.println(n);
+		}
 	}
 	
 }

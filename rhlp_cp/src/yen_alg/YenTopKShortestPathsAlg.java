@@ -148,7 +148,12 @@ public class YenTopKShortestPathsAlg
 	public Path next() {
 		//3.1 prepare for removing vertices and arcs
 		Path curPath = pathCandidates.poll();
-		resultList.add(curPath);
+		
+		/** Check to see if the route to be added to the list is consistent. 
+		*   If yes it is added otherwise its not.
+		*/
+		if (curPath.getVertexList().size()<5)
+			resultList.add(curPath);
 
 		BaseVertex curDerivation = pathDerivationVertexIndex.get(curPath);
 		int curPathHash =
@@ -280,10 +285,10 @@ public class YenTopKShortestPathsAlg
 		targetVertex = target;
 		
 		init();
-		int count = 0;
-		while (hasNext() && count < k) {
+//		int count = 0;
+		while (hasNext() && resultList.size() < k) {
 			next();
-			++count;
+//			++count;
 		}
 		
 		return resultList;

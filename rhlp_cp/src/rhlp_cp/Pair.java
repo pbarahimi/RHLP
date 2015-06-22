@@ -12,7 +12,7 @@ public class Pair {
 	public final Node origin;
 	public final Node destination;
 	public final double flow;
-	private final Route shortestPath;
+	private Route shortestPath;
 	private List<Route> routes = new ArrayList<Route>();
 
 	public Pair(Node i, Node j, Problem prob) {
@@ -21,7 +21,7 @@ public class Pair {
 		this.flow = prob.flow[origin.getIndex()][destination.getIndex()]
 				+ prob.flow[destination.getIndex()][origin.getIndex()];
 		this.routes = routes(prob);
-		this.shortestPath = routes.get(0);
+		this.shortestPath = this.routes.get(0);
 	}
 
 	private Route shortestPath(Problem prob) {
@@ -88,7 +88,7 @@ public class Pair {
 		YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(graph);
 		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
 				graph.getVertex(this.origin.getIndex()),
-				graph.getVertex(this.destination.getIndex()), 3);
+				graph.getVertex(this.destination.getIndex()), 5);
 
 		/** Cast vertices to nodes and return the route. */
 		// System.out.println("The shortest path from "+this.origin+" to "+this.destination+" is: "+
@@ -134,8 +134,8 @@ public class Pair {
 			Route route=new Route(i, j, k, m, prob.alpha, prob.distance);
 			result.add(route);
 			System.out
-			.println("The shortest path from "+origin+" to "+destination+" is inconsistent, the route is: "
-					+ route.toString());
+			.println("The shortest path from "+origin+" to "+destination+" is: "
+					+ route.toString()+" and the cost is: "+ route.getCost());
 		}
 		return result;
 	}
