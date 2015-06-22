@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import rhlp_cp.Node;
+import rhlp_cp.Problem;
 import yen_alg.BaseVertex;
 import yen_alg.DijkstraShortestPathAlg;
 import yen_alg.Pair;
@@ -71,6 +73,15 @@ public class VariableGraph extends Graph {
 	 */
 	public VariableGraph(Graph graph) {
 		super(graph);
+	}
+	
+	/**
+	 * Constructor 3
+	 * 
+	 * @param origin, destination, HLP_problem
+	 */
+	public VariableGraph(Node origin, Node destination, Problem prob) {
+		super(origin, destination, prob);
 	}
 
 	/**

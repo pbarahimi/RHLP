@@ -37,27 +37,30 @@ public class Main {
 		}*/
 //		Dijkstra.shortestPath(new Vertex(prob.nodes.get(0)), new Vertex(prob.nodes.get(9)), hubs, prob.distance, prob.alpha);
 		
-		/*for (Pair p:prob.pairs){
+		/*for (Pair p:prob.pairs){	
 			if (p.getShortestPath()==null){
 				System.out.println("The shortest path for "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is: null");
 			}
 			else
 				System.out.println("The shortest path for "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is: "+p.getShortestPath());
-		}
-		for (Pair p:prob.pairs){
-			System.out.println("The shortest distance from node "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is : "+ p.getShortestPath()+" with type "+p.getShortestPath().getType());
 		}*/
+		for (Pair p:prob.pairs){
+			System.out.println("The shortest distance from node "+p.origin.getIndex()+" to "+p.destination.getIndex()+" is : "+ p.getShortestPath()+" with type "/*+p.getShortestPath().getCost()*/);
+		}
 		
-		Graph graph=new VariableGraph("test_5.txt");
-		System.out.println(graph.getAdjacentVertices(graph.getVertex(4)).toString());
+//		Graph graph=new VariableGraph("test_5.txt");
+/*		Graph graph=new VariableGraph(prob.nodes.get(3), prob.nodes.get(9), prob);
+		System.out.println("The nodes adjacent to "+graph.getVertex(3)+": "+graph.getAdjacentVertices(graph.getVertex(3)).toString());
 		YenTopKShortestPathsAlg yenAlg=new YenTopKShortestPathsAlg(graph);
 		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
-                graph.getVertex(4), graph.getVertex(5), 100);
+                graph.getVertex(3), graph.getVertex(9), 5);
 		System.out.println(":"+shortest_paths_list);
-		System.out.println(yenAlg.getResultList().size());
+		System.out.println(yenAlg.getResultList().size());*/
 		
 		long stopTime = System.currentTimeMillis();
 	      long elapsedTime = stopTime - startTime;
 	      System.out.println(elapsedTime);
+	      
+	      MyArray.print(prob.distance);
 	}
 }

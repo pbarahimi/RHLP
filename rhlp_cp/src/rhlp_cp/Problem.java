@@ -3,6 +3,9 @@ package rhlp_cp;
 import java.util.ArrayList;
 import java.util.List;
 
+import yen_alg.BaseGraph;
+import yen_alg.Graph;
+
 public class Problem {
 	public final int nVar;
 	public final int nHub=5;
@@ -96,4 +99,5 @@ public class Problem {
 		objFun+=this.nHub*this.fixedCharge[0];
 		return objFun;
 	}
+	
 }
