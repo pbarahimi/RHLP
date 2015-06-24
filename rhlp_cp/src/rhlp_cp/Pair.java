@@ -3,6 +3,7 @@ package rhlp_cp;
 import java.util.ArrayList;
 import java.util.List;
 
+import yen_alg.DijkstraShortestPathAlg;
 import yen_alg.Graph;
 import yen_alg.Path;
 import yen_alg.VariableGraph;
@@ -21,11 +22,57 @@ public class Pair {
 		this.flow = prob.flow[origin.getIndex()][destination.getIndex()]
 				+ prob.flow[destination.getIndex()][origin.getIndex()];
 		this.routes = routes(prob);
-		this.shortestPath = this.routes.get(0);
+		this.shortestPath = shortestPath(prob);
 	}
 
 	private Route shortestPath(Problem prob) {
-		List<Vertex> vertices = new ArrayList<Vertex>();
+		Graph graph = new VariableGraph(this.origin, this.destination, prob);
+		DijkstraShortestPathAlg alg = new DijkstraShortestPathAlg(graph);
+		Path path=alg.getShortestPath(graph.getVertex(origin.getIndex()), graph.getVertex(destination.getIndex()));
+		
+		// Casting path to route
+		Node i = prob.nodes.get(path.getVertexList().get(0).getId());
+		Node j = prob.nodes.get(path.getVertexList()
+				.get(path.getVertexList().size() - 1).getId());
+		Node k;
+		Node m;
+
+		if (path.getVertexList().size() == 2) {
+			if (origin.isHub() && destination.isHub()) {
+				k = prob.nodes.get(path.getVertexList().get(0).getId());
+				m = prob.nodes.get(path.getVertexList().get(1).getId());
+			} else if (origin.isHub() && !destination.isHub()) {
+				k = prob.nodes.get(path.getVertexList().get(0).getId());
+				m = prob.nodes.get(path.getVertexList().get(0).getId());
+			} else {
+				k = prob.nodes.get(path.getVertexList().get(1).getId());
+				m = prob.nodes.get(path.getVertexList().get(1).getId());
+			}
+		} else if (path.getVertexList().size() == 3) {
+			if (!origin.isHub() && !destination.isHub()) {
+				k = prob.nodes.get(path.getVertexList().get(1).getId());
+				m = prob.nodes.get(path.getVertexList().get(1).getId());
+			} else if (origin.isHub() && !destination.isHub()) {
+				k = prob.nodes.get(path.getVertexList().get(0).getId());
+				m = prob.nodes.get(path.getVertexList().get(1).getId());
+			} else {
+				k = prob.nodes.get(path.getVertexList().get(1).getId());
+				m = prob.nodes.get(path.getVertexList().get(2).getId());
+			}
+		} else if (path.getVertexList().size() == 4) {
+			k = prob.nodes.get(path.getVertexList().get(1).getId());
+			m = prob.nodes.get(path.getVertexList().get(2).getId());
+		} else {
+			System.out
+					.println("The shortest path from "+origin+" to "+destination+" is inconsistent, the route is: "
+							+ path.toString());
+			return null;
+		}
+		Route route=new Route(i, j, k, m, prob.alpha, prob.distance);
+		System.out.println("The shortest path of Dijkstra: "+route+" "+route.getCost());
+		
+		return route;
+		/*List<Vertex> vertices = new ArrayList<Vertex>();
 		for (Node n : prob.nodes) {
 			if (!n.equals(origin) && !n.equals(destination) && n.isHub())
 				vertices.add(new Vertex(n));
@@ -35,7 +82,7 @@ public class Pair {
 				this.origin), new Vertex(this.destination), vertices,
 				prob.distance, prob.alpha);
 
-		/** Cast vertices to nodes and return the route. */
+		*//** Cast vertices to nodes and return the route. *//*
 		// System.out.println("The shortest path from "+this.origin+" to "+this.destination+" is: "+
 		// shortestPath.toString());
 		Node i = prob.nodes.get(shortestPath.get(0).index);
@@ -76,19 +123,18 @@ public class Pair {
 			return null;
 		}
 		Route result = new Route(i, j, k, m, prob.alpha, prob.distance);
-		return result;
+		return result;*/
 	}
 
-	public List<Route> routes(Problem prob) {
+	private List<Route> routes(Problem prob) {
 		List<Route> result = new ArrayList<Route>();
-		// Implement the Yen's algorithm here.
 		Graph graph = new VariableGraph(this.origin, this.destination, prob);
 //		System.out.println("The nodes adjacent to " + graph.getVertex(3) + ": "
 //				+ graph.getAdjacentVertices(graph.getVertex(3)).toString());
 		YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(graph);
 		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
 				graph.getVertex(this.origin.getIndex()),
-				graph.getVertex(this.destination.getIndex()), 5);
+				graph.getVertex(this.destination.getIndex()), 10);
 
 		/** Cast vertices to nodes and return the route. */
 		// System.out.println("The shortest path from "+this.origin+" to "+this.destination+" is: "+
@@ -140,7 +186,7 @@ public class Pair {
 		return result;
 	}
 
-	public Route getShortestPath() {
+	public Route getShortestRoute() {
 		return this.shortestPath;
 	}
 

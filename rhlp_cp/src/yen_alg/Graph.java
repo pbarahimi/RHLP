@@ -207,13 +207,8 @@ public class Graph implements BaseGraph {
 			if (prob.nodes.get(i).isHub() && !prob.nodes.get(i).equals(origin) && !prob.nodes.get(i).equals(destination))
 				tmpVertexList.add(vertexList.get(i));
 		}
-		/*tmpVertexList.addAll(vertexList);
-		Set<BaseVertex> _OD=new HashSet<BaseVertex>();;
-		_OD.add(tmpVertexList.get(origin.getIndex()));
-		_OD.add(tmpVertexList.get(destination.getIndex()));
-		tmpVertexList.removeAll(_OD);
-		*/
-		System.out.println("The list of vertices in between the OD: "+tmpVertexList);
+		
+//		System.out.println("The list of vertices in between the OD: "+tmpVertexList);
 		
 		double tmpAlpha1=0;	
 		double tmpAlpha2=0;

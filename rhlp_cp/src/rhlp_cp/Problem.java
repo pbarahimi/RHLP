@@ -8,8 +8,8 @@ import java.util.Set;
 
 public class Problem {
 	public final int nVar;
-	public final int nHub=5;
-	public final double q=0.05;
+	public int nHub;
+	public final double q;
 	public final double[][] coordinate;
 	public final double[][] flow;
 	public final double[] fixedCharge;
@@ -18,8 +18,9 @@ public class Problem {
 	public final List<Node> nodes;
 	public List<Pair> pairs=new ArrayList<Pair>();
 	
-	public Problem(String c, String f, String fC,double alpha){
+	public Problem(String c, String f, String fC,double alpha, double q){
 		
+		this.q=q;
 		this.alpha=alpha;
 		this.nodes=new ArrayList<Node>(); 
 		this.coordinate=MyArray.read(c);
@@ -33,6 +34,12 @@ public class Problem {
 		}
 		
 		rndPhubAssign(nodes);
+		int tempNHub=0;
+		for (Node n:this.nodes){
+			if (n.isHub())
+				tempNHub++;
+		}
+		this.nHub=tempNHub;
 		
 		for (Node o:nodes){
 			for (Node d:nodes){
@@ -48,10 +55,12 @@ public class Problem {
 		this.flow=other.flow;
 		this.fixedCharge=other.fixedCharge;
 		this.distance=other.distance;
-		this.alpha=0.2;
+		this.alpha=other.alpha;
 		this.nVar=other.nVar;
+		this.nHub=other.nHub;
 		this.nodes=other.nodes;
 		this.pairs=other.pairs;
+		this.q=other.q;
 	}
 
 	public void rndPhubAssign(List<Node> nodes){
@@ -66,46 +75,61 @@ public class Problem {
 		nodes.get(3).setHub();
 		nodes.get(5).setHub();
 		nodes.get(7).setHub();
+		nodes.get(9).setHub();
 	}
 
-	// Objective function lower bound
+	/** Objective function lower bound
+	 * 
+	 * @return
+	 */
 	public double objFunLB(){	
 		double objFun=0;
 		int counter;
-		
-		for (Pair p:pairs){
+		double temp;
+		for (Pair pair:this.pairs){
+			temp=0;
 			counter=0;
-			for (Route r:p.getRoutes()){
-			objFun+=(1-r.getFailProb(q))*Math.pow(q, counter++);
+			for (int i=0;i<pair.getRoutes().size();i++){
+				temp+=(1-pair.getShortestRoute().getFailProb(q))*Math.pow(q, counter++);
 			}
-			objFun*=p.flow*p.getShortestPath().getCost();
-			objFun+=this.nHub*this.fixedCharge[0];
+			temp*=pair.flow*pair.getShortestRoute().getCost();
+			objFun+=temp;
 		}
+		objFun+=this.nHub*this.fixedCharge[0];
 		return objFun;
 	}
-	
-	// Objective function
 
-	// Objective Function
+	/** Objective Function
+	 * 
+	 * @return
+	 */
 	public double objFun(){	
 		double objFun=0;
 		int counter;
-		for (Pair p:pairs){
+		double temp;
+		for (Pair pair:this.pairs){
+			temp=0;
 			counter=0;
-			for (Route r:p.getRoutes()){
-				objFun=r.getCost()*(1-r.getFailProb(q))*Math.pow(q, counter++);
+			for (Route route:pair.getRoutes()){
+				temp+=route.getCost()*(1-route.getFailProb(q))*Math.pow(q, counter++);
 			}
-			objFun*=p.flow;
+			temp*=pair.flow;
+			objFun+=temp;
 		}
+		
 		objFun+=this.nHub*this.fixedCharge[0];
 		return objFun;
 	}
 	
 	public void printHubs(){
+		String str=new String();
+		System.out.print("The hubs are: ");
 		for (Node n:this.nodes){
 			if (n.isHub())
-				System.out.println(n);
+				str=str+","+n;
 		}
+		str=str.substring(1);
+		System.out.println("("+str+")");
 	}
 	
 }

@@ -31,9 +31,13 @@
 
 package yen_alg;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import yen_alg.Graph;
@@ -64,6 +68,9 @@ public class YenTopKShortestPathsAlg
 	
 	// variables for debugging and testing
 	private int generatedPathNum = 0;
+	
+	// list of nodes that are no allowed to be repeated in the backup list
+	Set<Integer> failedHubs=new HashSet<Integer>();
 	
 	/**
 	 * Default constructor.
@@ -149,9 +156,48 @@ public class YenTopKShortestPathsAlg
 		//3.1 prepare for removing vertices and arcs
 		Path curPath = pathCandidates.poll();
 		
+		/** Make the list of failed hubs according
+		 * to the assigned routes to the backup list.
+		 */
+		boolean terminationCriteria=false;
+		if (!resultList.isEmpty()){
+			if (curPath.getVertexList().size()==2)	/* if there is no hub in the middle
+			 										* the backup list discontinues.
+			 										*/
+				terminationCriteria=true;
+			
+			else if (curPath.getVertexList().size() == 3) /*
+														 * if there is only 1 hub in
+														 * the middle, the id of the
+														 * node is added to the
+														 * failed list.
+														 */ 
+				failedHubs.add(curPath.getVertexList().get(1).getId());
+			
+			else if (curPath.getVertexList().size() == 4){
+				if (resultList.get(resultList.size()-1).getVertexList().size()==4){
+					if (curPath.getVertexList().get(1).getId()==resultList.get(resultList.size()-1).getVertexList().get(1).getId()
+							|| curPath.getVertexList().get(1).getId()==resultList.get(resultList.size()-1).getVertexList().get(2).getId())
+						failedHubs.add(curPath.getVertexList().get(3).getId());
+					else if (curPath.getVertexList().get(2).getId()==resultList.get(resultList.size()-1).getVertexList().get(1).getId()
+							|| curPath.getVertexList().get(2).getId()==resultList.get(resultList.size()-1).getVertexList().get(2).getId())
+						failedHubs.add(curPath.getVertexList().get(2).getId());
+				}
+			}
+			System.out.println(resultList);
+			System.out.println(curPath);
+			System.out.println(failedHubs);
+		}
+			
+		
 		/** Check to see if the route to be added to the list is consistent. 
 		*   If yes it is added otherwise its not.
 		*/
+		List<BaseVertex> tmpCurPath = new ArrayList<BaseVertex>();
+		tmpCurPath.addAll(curPath.getVertexList());
+		tmpCurPath.remove(0);
+		tmpCurPath.remove(tmpCurPath.size()-1);
+		
 		if (curPath.getVertexList().size()<5)
 			resultList.add(curPath);
 

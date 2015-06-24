@@ -15,7 +15,7 @@ public class Main {
 	
 	public static void main(String[] args){
 		 long startTime = System.currentTimeMillis();
-		Problem prob=new Problem("coordinates.txt", "w.txt", "fixedcharge.txt",0.2);
+		Problem prob=new Problem("coordinates.txt", "w.txt", "fixedcharge.txt",0.2,0.05);
 //		for (int i=0;i<Problem.distance[0].length;i++){
 //			for (int j=0;j<Problem.distance.length;j++){
 //			System.out.format("%-5f\t",Problem.distance[i][j]);
@@ -50,7 +50,7 @@ public class Main {
 		}*/
 		
 //		Graph graph=new VariableGraph("test_5.txt");
-		/*Graph graph=new VariableGraph(prob.nodes.get(0), prob.nodes.get(6), prob);
+		/*
 		for (BaseVertex bv:graph.getVertexList()){
 			System.out.println("The nodes adjacent to "+bv+": "+graph.getAdjacentVertices(bv).toString());
 		}
@@ -58,13 +58,14 @@ public class Main {
 		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
                 graph.getVertex(0), graph.getVertex(6), 5);
 		System.out.println(":"+shortest_paths_list);
-		System.out.println(yenAlg.getResultList().size());
-		
+		System.out.println(yenAlg.getResultList().size());*/
+		Graph graph=new VariableGraph(prob.nodes.get(0), prob.nodes.get(6), prob);
 		long stopTime = System.currentTimeMillis();
 	      long elapsedTime = stopTime - startTime;
-	      System.out.println(elapsedTime);
-	      MyArray.print(prob.distance);*/
-	      
+	      System.out.println("elapsed time: "+elapsedTime+"ms");
+		System.out.println("The lower bound: "+prob.objFunLB());
+		System.out.println("The objective function value: "+prob.objFun());
+
 	      prob.printHubs();
 	}
 }
