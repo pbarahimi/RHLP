@@ -18,7 +18,43 @@ public class Problem {
 	public final List<Node> nodes;
 	public List<Pair> pairs=new ArrayList<Pair>();
 	
-	public Problem(String c, String f, String fC,double alpha, double q){
+	public Problem(String c, String f, String fC, int[] hubsList, double alpha, double q){
+		
+		this.q=q;
+		this.alpha=alpha;
+		this.nodes=new ArrayList<Node>(); 
+		this.coordinate=MyArray.read(c);
+		this.flow=MyArray.read(f);
+		this.fixedCharge=MyArray.read2(fC);
+		this.distance=Distance.get(coordinate);
+		this.nVar=coordinate.length;
+		
+		for (int i=0;i<coordinate.length;i++){
+			nodes.add(new Node(i, coordinate[i][0], coordinate[i][1], false));
+		}
+		
+//		rndPhubAssign(nodes);
+		for (int i:hubsList){
+			this.nodes.get(i).setHub();
+		}
+		
+		int tempNHub=0;
+		for (Node n:this.nodes){
+			if (n.isHub())
+				tempNHub++;
+		}
+		this.nHub=tempNHub;
+		
+		for (Node o:nodes){
+			for (Node d:nodes){
+				if (o.getIndex()>d.getIndex()){
+				this.pairs.add(new Pair(o,d,this));
+				}
+			}
+		}
+	}
+	
+public Problem(String c, String f, String fC, double alpha, double q){
 		
 		this.q=q;
 		this.alpha=alpha;
@@ -34,6 +70,7 @@ public class Problem {
 		}
 		
 		rndPhubAssign(nodes);
+		
 		int tempNHub=0;
 		for (Node n:this.nodes){
 			if (n.isHub())
@@ -71,11 +108,13 @@ public class Problem {
 //		}
 //		
 //		Collections.sort(nodes);
+		nodes.get(0).setHub();
 		nodes.get(1).setHub();
+		nodes.get(2).setHub();
 		nodes.get(3).setHub();
-		nodes.get(5).setHub();
-		nodes.get(7).setHub();
-		nodes.get(9).setHub();
+//		nodes.get(9).setHub();
+//		nodes.get(14).setHub();
+//		nodes.get(15).setHub();
 	}
 
 	/** Objective function lower bound
@@ -89,7 +128,7 @@ public class Problem {
 		for (Pair pair:this.pairs){
 			temp=0;
 			counter=0;
-			for (int i=0;i<pair.getRoutes().size();i++){
+			for (int i=0;i<pair.getRoutes(this).size();i++){
 				temp+=(1-pair.getShortestRoute().getFailProb(q))*Math.pow(q, counter++);
 			}
 			temp*=pair.flow*pair.getShortestRoute().getCost();
@@ -110,7 +149,7 @@ public class Problem {
 		for (Pair pair:this.pairs){
 			temp=0;
 			counter=0;
-			for (Route route:pair.getRoutes()){
+			for (Route route:pair.getRoutes(this)){
 				temp+=route.getCost()*(1-route.getFailProb(q))*Math.pow(q, counter++);
 			}
 			temp*=pair.flow;

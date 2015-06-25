@@ -85,6 +85,15 @@ public class VariableGraph extends Graph {
 	}
 
 	/**
+	 * Constructor 4
+	 * 
+	 * @param origin, destination, HLP_problem
+	 */
+	public VariableGraph(Node origin, Node destination, Problem prob, Set<Integer> failedHubs) {
+		super(origin, destination, prob, failedHubs);
+	}
+	
+	/**
 	 * Set the set of vertices to be removed from the graph
 	 * 
 	 * @param remVertexList

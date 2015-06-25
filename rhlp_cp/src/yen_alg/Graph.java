@@ -106,6 +106,134 @@ public class Graph implements BaseGraph {
 		fanoutVerticesIndex.putAll(graph.fanoutVerticesIndex);
 		vertexPairWeightIndex.putAll(graph.vertexPairWeightIndex);
 	}
+	
+	/**
+	 * Constructor 3
+	 * Constructs a graph based on the input in the HLP.
+	 * 
+	 * @param origin, destination, HLP_problem
+	 */
+	public Graph(Node origin, Node destination, Problem prob) {
+		int nVertex = prob.nVar;
+		// 0. Clear the variables 
+		clear();
+		for (int i=0; i<nVertex; ++i) {
+			BaseVertex vertex = new Vertex();
+			vertexList.add(vertex);
+			idVertexIndex.put(vertex.getId(), vertex);
+		}
+		
+		// removing the origin and destination nodes from the list of vertices.
+		List<BaseVertex> tmpVertexList=new ArrayList<BaseVertex>();
+		for (int i=0; i<nVertex; i++){
+			if ( prob.nodes.get(i).isHub() 
+					&& !prob.nodes.get(i).equals(origin) 
+					&& !prob.nodes.get(i).equals(destination))
+				tmpVertexList.add(vertexList.get(i));
+		}
+		
+//		System.out.println("The list of vertices in between the OD: "+tmpVertexList);
+		
+		double tmpAlpha1=0;	
+		double tmpAlpha2=0;
+		
+		if (origin.isHub())
+			tmpAlpha1=prob.alpha; 	// if origin node is a hub, there is discount factor involved
+		if (destination.isHub())
+			tmpAlpha2=prob.alpha;	// if destination node is a hub, there is discount factor involved
+		for (BaseVertex v:tmpVertexList){											
+			
+			addEdge(origin.getIndex(), v.getId(), (1-tmpAlpha1)*prob.distance[v.getId()][origin.getIndex()]);
+			addEdge(destination.getIndex(), v.getId(), (1-tmpAlpha2)*prob.distance[v.getId()][destination.getIndex()]);
+			
+			addEdge(v.getId(), origin.getIndex(), (1-tmpAlpha1)*prob.distance[v.getId()][origin.getIndex()]);
+			addEdge(v.getId(), destination.getIndex(), (1-tmpAlpha2)*prob.distance[v.getId()][destination.getIndex()]);
+			for (BaseVertex v2: tmpVertexList){
+				if (!v.equals(v2)){
+					double weightInterHub = (1-prob.alpha) * prob.distance[v.getId()][v2.getId()];
+					addEdge(v.getId(), v2.getId(), weightInterHub);
+					addEdge(v2.getId(), v.getId(), weightInterHub);
+				}
+			}
+		}	
+	
+		// in either of the of the origin or destination nodes is a hub, then an edge between them is added to the graph.
+		double tmpAlpha=0;	/* equals to the alpha if both origin and destination 
+							*  nodes are hubs, otherwise is set to 0.  
+							*/
+		if (origin.isHub() && destination.isHub())
+		tmpAlpha=prob.alpha;
+		
+		if (origin.isHub() || destination.isHub()){
+			addEdge(origin.getIndex(), destination.getIndex(), (1-tmpAlpha) * prob.distance[origin.getIndex()][destination.getIndex()]);
+//			addEdge(destination.getIndex(), origin.getIndex(), (1-tmpAlpha) * prob.distance[origin.getIndex()][destination.getIndex()]);
+		}
+	}
+	
+	/**
+	 * Constructor 4
+	 * Constructs a graph based on the input in the HLP
+	 * and the failed hubs.
+	 * 
+	 * @param origin, destination, HLP_problem
+	 */
+	public Graph(Node origin, Node destination, Problem prob, Set<Integer> failedHubs) {
+		int nVertex = prob.nVar;
+		// 0. Clear the variables 
+		clear();
+		for (int i=0; i<nVertex; ++i) {
+			BaseVertex vertex = new Vertex();
+			vertexList.add(vertex);
+			idVertexIndex.put(vertex.getId(), vertex);
+		}
+		
+		// removing the origin and destination nodes from the list of vertices.
+		List<BaseVertex> tmpVertexList=new ArrayList<BaseVertex>();
+		for (int i=0; i<nVertex; i++){
+			if (!failedHubs.contains(i) 
+					&& prob.nodes.get(i).isHub() 
+					&& !prob.nodes.get(i).equals(origin) 
+					&& !prob.nodes.get(i).equals(destination))
+				tmpVertexList.add(vertexList.get(i));
+		}
+		
+//		System.out.println("The list of vertices in between the OD: "+tmpVertexList);
+		
+		double tmpAlpha1=0;	
+		double tmpAlpha2=0;
+		
+		if (origin.isHub())
+			tmpAlpha1=prob.alpha; 	// if origin node is a hub, there is discount factor involved
+		if (destination.isHub())
+			tmpAlpha2=prob.alpha;	// if destination node is a hub, there is discount factor involved
+		for (BaseVertex v:tmpVertexList){											
+			
+			addEdge(origin.getIndex(), v.getId(), (1-tmpAlpha1)*prob.distance[v.getId()][origin.getIndex()]);
+			addEdge(destination.getIndex(), v.getId(), (1-tmpAlpha2)*prob.distance[v.getId()][destination.getIndex()]);
+			
+			addEdge(v.getId(), origin.getIndex(), (1-tmpAlpha1)*prob.distance[v.getId()][origin.getIndex()]);
+			addEdge(v.getId(), destination.getIndex(), (1-tmpAlpha2)*prob.distance[v.getId()][destination.getIndex()]);
+			for (BaseVertex v2: tmpVertexList){
+				if (!v.equals(v2)){
+					double weightInterHub = (1-prob.alpha) * prob.distance[v.getId()][v2.getId()];
+					addEdge(v.getId(), v2.getId(), weightInterHub);
+					addEdge(v2.getId(), v.getId(), weightInterHub);
+				}
+			}
+		}	
+	
+		// in either of the of the origin or destination nodes is a hub, then an edge between them is added to the graph.
+		double tmpAlpha=0;	/* equals to the alpha if both origin and destination 
+							*  nodes are hubs, otherwise is set to 0.  
+							*/
+		if (origin.isHub() && destination.isHub())
+		tmpAlpha=prob.alpha;
+		
+		if (origin.isHub() || destination.isHub()){
+			addEdge(origin.getIndex(), destination.getIndex(), (1-tmpAlpha) * prob.distance[origin.getIndex()][destination.getIndex()]);
+//			addEdge(destination.getIndex(), origin.getIndex(), (1-tmpAlpha) * prob.distance[origin.getIndex()][destination.getIndex()]);
+		}
+	}
 
 	/**
 	 * Default constructor
@@ -182,67 +310,6 @@ public class Graph implements BaseGraph {
 		} catch (IOException e) {
 			// If another exception is generated, print a stack trace
 			e.printStackTrace();
-		}
-	}
-	
-
-	/**
-	 * Constructs a graph based on the input in the HLP.
-	 * 
-	 * @param origin, destination, HLP_problem
-	 */
-	public Graph(Node origin, Node destination, Problem prob) {
-		int nVertex = prob.nVar;
-		// 0. Clear the variables 
-		clear();
-		for (int i=0; i<nVertex; ++i) {
-			BaseVertex vertex = new Vertex();
-			vertexList.add(vertex);
-			idVertexIndex.put(vertex.getId(), vertex);
-		}
-		
-		// removing the origin and destination nodes from the list of vertices.
-		List<BaseVertex> tmpVertexList=new ArrayList<BaseVertex>();
-		for (int i=0; i<nVertex; i++){
-			if (prob.nodes.get(i).isHub() && !prob.nodes.get(i).equals(origin) && !prob.nodes.get(i).equals(destination))
-				tmpVertexList.add(vertexList.get(i));
-		}
-		
-//		System.out.println("The list of vertices in between the OD: "+tmpVertexList);
-		
-		double tmpAlpha1=0;	
-		double tmpAlpha2=0;
-		
-		if (origin.isHub())
-			tmpAlpha1=prob.alpha; 	// if origin node is a hub, there is discount factor involved
-		if (destination.isHub())
-			tmpAlpha2=prob.alpha;	// if destination node is a hub, there is discount factor involved
-		for (BaseVertex v:tmpVertexList){											
-			
-			addEdge(origin.getIndex(), v.getId(), (1-tmpAlpha1)*prob.distance[v.getId()][origin.getIndex()]);
-			addEdge(destination.getIndex(), v.getId(), (1-tmpAlpha2)*prob.distance[v.getId()][destination.getIndex()]);
-			
-			addEdge(v.getId(), origin.getIndex(), (1-tmpAlpha1)*prob.distance[v.getId()][origin.getIndex()]);
-			addEdge(v.getId(), destination.getIndex(), (1-tmpAlpha2)*prob.distance[v.getId()][destination.getIndex()]);
-			for (BaseVertex v2: tmpVertexList){
-				if (!v.equals(v2)){
-					double weightInterHub = (1-prob.alpha) * prob.distance[v.getId()][v2.getId()];
-					addEdge(v.getId(), v2.getId(), weightInterHub);
-					addEdge(v2.getId(), v.getId(), weightInterHub);
-				}
-			}
-		}	
-	
-		// in either of the of the origin or destination nodes is a hub, then an edge between them is added to the graph.
-		double tmpAlpha=0;	/* equals to the alpha if both origin and destination 
-							*  nodes are hubs, otherwise is set to 0.  
-							*/
-		if (origin.isHub() && destination.isHub())
-		tmpAlpha=prob.alpha;
-		
-		if (origin.isHub() || destination.isHub()){
-			addEdge(origin.getIndex(), destination.getIndex(), (1-tmpAlpha) * prob.distance[origin.getIndex()][destination.getIndex()]);
-//			addEdge(destination.getIndex(), origin.getIndex(), (1-tmpAlpha) * prob.distance[origin.getIndex()][destination.getIndex()]);
 		}
 	}
 

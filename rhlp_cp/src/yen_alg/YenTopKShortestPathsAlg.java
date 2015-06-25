@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import rhlp_cp.Problem;
 import yen_alg.Graph;
 import yen_alg.Path;
 import yen_alg.VariableGraph;
@@ -56,11 +57,13 @@ import yen_alg.QYPriorityQueue;
 public class YenTopKShortestPathsAlg
 {
 	private VariableGraph graph = null;
-
+	private boolean terminationCriteria=false;
 	// intermediate variables
 	private List<Path> resultList = new Vector<Path>();
 	private Map<Path, BaseVertex> pathDerivationVertexIndex = new HashMap<Path, BaseVertex>();
 	private QYPriorityQueue<Path> pathCandidates = new QYPriorityQueue<Path>();
+	private tmpShortestPath result=new tmpShortestPath();
+			
 	
 	// the ending vertices of the paths
 	private BaseVertex sourceVertex = null;
@@ -70,7 +73,7 @@ public class YenTopKShortestPathsAlg
 	private int generatedPathNum = 0;
 	
 	// list of nodes that are no allowed to be repeated in the backup list
-	Set<Integer> failedHubs=new HashSet<Integer>();
+	private Set<Integer> failedHubs=new HashSet<Integer>();
 	
 	/**
 	 * Default constructor.
@@ -153,15 +156,28 @@ public class YenTopKShortestPathsAlg
 	 * @return
 	 */
 	public Path next() {
+		
 		//3.1 prepare for removing vertices and arcs
 		Path curPath = pathCandidates.poll();
 		
-		/** Make the list of failed hubs according
-		 * to the assigned routes to the backup list.
-		 */
-		boolean terminationCriteria=false;
-		if (!resultList.isEmpty()){
-			if (curPath.getVertexList().size()==2)	/* if there is no hub in the middle
+		/** Check to see if the route to be added to the list is consistent. 
+		*   If yes it is added otherwise its not.
+		*/
+				
+		if (curPath.getVertexList().size()<5
+				&& !terminationCriteria
+				&& !containsFailedHub(curPath, failedHubs)){
+			/** add the current path to the backup list.
+			 * 
+			 */
+			resultList.add(curPath);
+			
+			/** Make the list of failed hubs according
+			 * to the assigned routes to the resultList list.
+			 */
+			
+			if (curPath.getVertexList().size()==2
+					|| failedHubs.size()==graph.vertexNum-2)	/* if there is no hub in the middle
 			 										* the backup list discontinues.
 			 										*/
 				terminationCriteria=true;
@@ -178,35 +194,24 @@ public class YenTopKShortestPathsAlg
 				if (resultList.get(resultList.size()-1).getVertexList().size()==4){
 					if (curPath.getVertexList().get(1).getId()==resultList.get(resultList.size()-1).getVertexList().get(1).getId()
 							|| curPath.getVertexList().get(1).getId()==resultList.get(resultList.size()-1).getVertexList().get(2).getId())
-						failedHubs.add(curPath.getVertexList().get(3).getId());
+						failedHubs.add(curPath.getVertexList().get(2).getId());
 					else if (curPath.getVertexList().get(2).getId()==resultList.get(resultList.size()-1).getVertexList().get(1).getId()
 							|| curPath.getVertexList().get(2).getId()==resultList.get(resultList.size()-1).getVertexList().get(2).getId())
-						failedHubs.add(curPath.getVertexList().get(2).getId());
+						failedHubs.add(curPath.getVertexList().get(1).getId());
 				}
 			}
-			System.out.println(resultList);
-			System.out.println(curPath);
-			System.out.println(failedHubs);
 		}
 			
-		
-		/** Check to see if the route to be added to the list is consistent. 
-		*   If yes it is added otherwise its not.
-		*/
-		List<BaseVertex> tmpCurPath = new ArrayList<BaseVertex>();
-		tmpCurPath.addAll(curPath.getVertexList());
-		tmpCurPath.remove(0);
-		tmpCurPath.remove(tmpCurPath.size()-1);
-		
-		if (curPath.getVertexList().size()<5)
-			resultList.add(curPath);
-
 		BaseVertex curDerivation = pathDerivationVertexIndex.get(curPath);
 		int curPathHash =
 			curPath.getVertexList().subList(0, curPath.getVertexList().indexOf(curDerivation)).hashCode();
 		
 		int count = resultList.size();
-		
+
+		System.out.println(resultList);
+		System.out.println(curPath);
+		System.out.println("Failed hubs: "+failedHubs);
+				
 		//3.2 remove the vertices and arcs in the graph
 		for (int i = 0; i < count-1; ++i) {
 			Path curResultPath = resultList.get(i);
@@ -316,6 +321,30 @@ public class YenTopKShortestPathsAlg
 		return curPath;
 	}
 	
+	/** 
+	 * Check to see if the path contains any failed hub
+	 * 
+	 * @return boolean
+	 */
+	private boolean containsFailedHub(Path curPath, Set<Integer> failedHubs){
+		boolean contains=false;
+		List<BaseVertex> tmpCurPath = new ArrayList<BaseVertex>();
+		tmpCurPath.addAll(curPath.getVertexList());
+		tmpCurPath.remove(0);
+		tmpCurPath.remove(tmpCurPath.size()-1);
+		
+		for (BaseVertex bv:tmpCurPath){
+			for (Integer i:failedHubs){
+				if (bv.getId()==i){
+					contains=true;
+					break;
+				}
+			}
+		}
+		return contains;
+	}
+	
+	
 	/**
 	 * Get the top-K shortest paths connecting the source and the target.  
 	 * This is a batch execution of top-K results.
@@ -325,19 +354,24 @@ public class YenTopKShortestPathsAlg
 	 * @param k
 	 * @return
 	 */
-	public List<Path> getShortestPaths(BaseVertex source,
-                                       BaseVertex target, int k) {
+	public tmpShortestPath getShortestPaths(BaseVertex source,
+                                       BaseVertex target) {
 		sourceVertex = source;
 		targetVertex = target;
 		
 		init();
 //		int count = 0;
-		while (hasNext() && resultList.size() < k) {
+		while (hasNext() 
+				&& failedHubs.isEmpty()) {
 			next();
+			System.out.println("hasNext: "+ hasNext()+"   ResultList Size: "+resultList.size());
 //			++count;
 		}
 		
-		return resultList;
+		this.result.updateFailedHubs(failedHubs);
+		this.result.updateShortestPaths(resultList);
+		this.result.updateHasNext(hasNext());
+		return result;
 	}
 		
 	/**

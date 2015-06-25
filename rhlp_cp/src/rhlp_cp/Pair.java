@@ -1,13 +1,16 @@
 package rhlp_cp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import yen_alg.DijkstraShortestPathAlg;
 import yen_alg.Graph;
 import yen_alg.Path;
 import yen_alg.VariableGraph;
 import yen_alg.YenTopKShortestPathsAlg;
+import yen_alg.tmpShortestPath;
 
 public class Pair {
 	public final Node origin;
@@ -21,7 +24,7 @@ public class Pair {
 		this.destination = j;
 		this.flow = prob.flow[origin.getIndex()][destination.getIndex()]
 				+ prob.flow[destination.getIndex()][origin.getIndex()];
-		this.routes = routes(prob);
+		//this.routes = routes(prob);
 		this.shortestPath = shortestPath(prob);
 	}
 
@@ -69,7 +72,7 @@ public class Pair {
 			return null;
 		}
 		Route route=new Route(i, j, k, m, prob.alpha, prob.distance);
-		System.out.println("The shortest path of Dijkstra: "+route+" "+route.getCost());
+//		System.out.println("The shortest path of Dijkstra: "+route+" "+route.getCost());
 		
 		return route;
 		/*List<Vertex> vertices = new ArrayList<Vertex>();
@@ -128,18 +131,30 @@ public class Pair {
 
 	private List<Route> routes(Problem prob) {
 		List<Route> result = new ArrayList<Route>();
-		Graph graph = new VariableGraph(this.origin, this.destination, prob);
-//		System.out.println("The nodes adjacent to " + graph.getVertex(3) + ": "
-//				+ graph.getAdjacentVertices(graph.getVertex(3)).toString());
-		YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(graph);
-		List<Path> shortest_paths_list = yenAlg.getShortestPaths(
-				graph.getVertex(this.origin.getIndex()),
-				graph.getVertex(this.destination.getIndex()), 10);
+		List<Path> shortestPathsList = new ArrayList<Path>();
+		Set<Integer> failedHubs=new HashSet<Integer>();		
+		boolean hasNext=true;
+		
+		while (failedHubs.size()<prob.nHub
+				&& hasNext){
+			Graph graph = new VariableGraph(this.origin, this.destination, prob, failedHubs);
+		
+	//		System.out.println("The nodes adjacent to " + graph.getVertex(3) + ": "
+	//				+ graph.getAdjacentVertices(graph.getVertex(3)).toString());
+			YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(graph);
+			tmpShortestPath tmp_shortest_paths_list = yenAlg.getShortestPaths(
+					graph.getVertex(this.origin.getIndex()),
+					graph.getVertex(this.destination.getIndex()));
+			shortestPathsList.addAll(tmp_shortest_paths_list.getShortestPaths());
+			failedHubs.addAll(tmp_shortest_paths_list.getFailedHubs());
+			hasNext=tmp_shortest_paths_list.hasNext();			
+		}
+		
 
 		/** Cast vertices to nodes and return the route. */
 		// System.out.println("The shortest path from "+this.origin+" to "+this.destination+" is: "+
 		// shortestPath.toString());
-		for (Path path : shortest_paths_list) {
+		for (Path path : shortestPathsList) {
 			Node i = prob.nodes.get(path.getVertexList().get(0).getId());
 			Node j = prob.nodes.get(path.getVertexList()
 					.get(path.getVertexList().size() - 1).getId());
@@ -190,7 +205,9 @@ public class Pair {
 		return this.shortestPath;
 	}
 
-	public List<Route> getRoutes() {
+	public List<Route> getRoutes(Problem prob) {
+		this.routes=routes(prob);
 		return this.routes;
 	}
+
 }
