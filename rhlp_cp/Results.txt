@@ -15438,4 +15438,4 @@ Hubs			Lower bound		Current_obj_fun		Best_obj_fun
 [14,15,17,18,19]		91018.816		NaN				79263.617
 [14,16,17,18,19]		91593.741		NaN				79263.617
 [15,16,17,18,19]		94923.324		NaN				79263.617
-elapsed time: 124917ms
+elapsed time: 112646ms

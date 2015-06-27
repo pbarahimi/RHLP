@@ -28,8 +28,9 @@ public class ProblemGenerator {
 		if (counter==this.nHub-1){
 			for (int i=hubsList.getList()[counter-1]+1;i<this.nNode;i++){
 				hubsList.getList()[counter]=i;
-				HubsList temp=new HubsList(hubsList);
-				this.problems[this.ctr++]=temp;
+				HubsList tempHubsList=new HubsList(hubsList);
+				Main.run(tempHubsList);
+//				this.problems[this.ctr++]=temp;
 			}
 		}else{
 			for (int i=hubsList.getList()[counter-1]+1;i<this.nNode;i++){
