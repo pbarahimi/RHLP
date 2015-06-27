@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.math3.util.ArithmeticUtils;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -20,7 +22,7 @@ public class Main {
 
 			Problem optimalSetting=new Problem();
 			double bestObjFun = Double.POSITIVE_INFINITY;
-			ProblemGenerator pg = new ProblemGenerator(10, 4);
+			ProblemGenerator pg = new ProblemGenerator(20, 5);
 
 			for (HubsList l : pg.getProblems()) {
 				Problem prob = new Problem("coordinates.txt", "w.txt",
@@ -75,5 +77,10 @@ public class Main {
 					 System.out.println(o+"-"+i+"-"+j+"-"+d+" : "+ cost);
 			 }
 		 }*/
+	/*	System.out.println(ArithmeticUtils.binomialCoefficientDouble(40, 10));
+		ProblemGenerator pg = new ProblemGenerator(40, 10);
+		pg.printProblems();*/
+		
+		
 	}
 }

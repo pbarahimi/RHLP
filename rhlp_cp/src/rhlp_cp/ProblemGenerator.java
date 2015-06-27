@@ -1,19 +1,20 @@
 package rhlp_cp;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.math3.util.*;
 
 public class ProblemGenerator {
-	private List<HubsList> problems;
+	private HubsList[] problems;
+	double test;
 	private int nNode;
 	private  int nHub;
+	private int ctr=0;
 	
+	@SuppressWarnings("deprecation")
 	public ProblemGenerator(int nNode, int nHub){
 		this.nHub=nHub;
 		this.nNode=nNode;
-		this.problems=new ArrayList<HubsList>();
-		
+		this.problems=new HubsList[(int) ArithmeticUtils.binomialCoefficientDouble(nNode, nHub)];
+				
 		for (int i=0;i<nNode;i++){
 			HubsList hubsList = new HubsList(nHub);
 			int counter=1;
@@ -23,11 +24,12 @@ public class ProblemGenerator {
 	}
 	
 	private void fun(int counter, HubsList hubsList){
+		
 		if (counter==this.nHub-1){
 			for (int i=hubsList.getList()[counter-1]+1;i<this.nNode;i++){
 				hubsList.getList()[counter]=i;
 				HubsList temp=new HubsList(hubsList);
-				this.problems.add(temp);
+				this.problems[this.ctr++]=temp;
 			}
 		}else{
 			for (int i=hubsList.getList()[counter-1]+1;i<this.nNode;i++){
@@ -39,7 +41,7 @@ public class ProblemGenerator {
 		}
 	}	
 	
-	public List<HubsList> getProblems(){
+	public HubsList[] getProblems(){
 		return this.problems;
 	}
 	
