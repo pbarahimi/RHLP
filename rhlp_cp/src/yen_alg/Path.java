@@ -33,6 +33,7 @@ package yen_alg;
 import java.util.List;
 import java.util.Vector;
 
+import rhlp_cp.Problem;
 import yen_alg.BaseElementWithWeight;
 import yen_alg.BaseVertex;
 
@@ -46,11 +47,14 @@ public class Path implements BaseElementWithWeight {
 	private List<BaseVertex> vertexList = new Vector<BaseVertex>();
 	private double weight = -1;
 	
-	public Path() { }
+	public Path() {
+		
+	}
 	
 	public Path(List<BaseVertex> vertexList, double weight) {
 		this.vertexList = vertexList;
 		this.weight = weight;
+		
 	}
 
 	public double getWeight() {
@@ -63,6 +67,55 @@ public class Path implements BaseElementWithWeight {
 	
 	public List<BaseVertex> getVertexList() {
 		return vertexList;
+	}
+	
+	@SuppressWarnings("null")
+	public int getType(Problem prob){
+		int type=0;
+		if (this.vertexList.size()==2){
+			if (prob.nodes.get(this.vertexList.get(0).getId()).isHub()
+					&& prob.nodes.get(this.vertexList.get(1).getId()).isHub())
+				type = 3;
+			else if(prob.nodes.get(this.vertexList.get(0).getId()).isHub())
+				type = 1;
+			else
+				type = 2;			
+		}else if(this.vertexList.size()==3){
+			if(!prob.nodes.get(this.vertexList.get(0).getId()).isHub()
+					&& !(prob.nodes.get(this.vertexList.get(1).getId()).isHub()))
+				type = 6;
+			else if (!prob.nodes.get(this.vertexList.get(0).getId()).isHub())
+				type = 5;
+			else
+				type = 4;
+		}else if (this.vertexList.size()==4){
+			type = 7;
+		}else{
+			System.out.println("the path is inconsistent: "+this);
+			return (Integer) null;
+		}
+		return type;
+	}
+	
+	public double getCost(Problem prob){
+		double cost=0;
+		double alpha;
+		for (int i=0; i<this.getVertexList().size()-1;i++){
+			if (prob.hubsList.contains(prob.nodes.get(i))
+					&& prob.hubsList.contains(prob.nodes.get(i+1)))
+				alpha=prob.alpha;
+			else
+				alpha=0;
+			cost+=(1-alpha)*prob.distance[this.getVertexList().get(i).getId()][this.getVertexList().get(i+1).getId()];
+		}
+		return cost;
+	}
+	
+	public double getFailProb(double q){
+		double p=q;
+		if (this.getVertexList().size()==4)
+			p = 2 * q - Math.pow(q, 2);
+		return p;
 	}
 	
 	@Override

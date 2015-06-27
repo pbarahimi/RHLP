@@ -208,9 +208,9 @@ public class YenTopKShortestPathsAlg
 		
 		int count = resultList.size();
 
-		System.out.println(resultList);
-		System.out.println(curPath);
-		System.out.println("Failed hubs: "+failedHubs);
+//		System.out.println(resultList);
+//		System.out.println(curPath);
+//		System.out.println("Failed hubs: "+failedHubs);
 				
 		//3.2 remove the vertices and arcs in the graph
 		for (int i = 0; i < count-1; ++i) {
@@ -364,7 +364,7 @@ public class YenTopKShortestPathsAlg
 		while (hasNext() 
 				&& failedHubs.isEmpty()) {
 			next();
-			System.out.println("hasNext: "+ hasNext()+"   ResultList Size: "+resultList.size());
+//			System.out.println("hasNext: "+ hasNext()+"   ResultList Size: "+resultList.size());
 //			++count;
 		}
 		

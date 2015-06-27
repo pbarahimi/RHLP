@@ -81,10 +81,7 @@ public class MyArray {
 	public static void print(double[][] A) {
 		for (int i = 0; i < A.length; i++) {
 			for (int j = 0; j < A[0].length; j++) {
-				System.out.print(A[i][j]);
-				if (j < A[0].length - 1) {
-					System.out.print("-");
-				}
+				System.out.printf("%-8.2f ", A[i][j]);
 			}
 			System.out.println();
 		}
