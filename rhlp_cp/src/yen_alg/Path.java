@@ -43,84 +43,88 @@ import yen_alg.BaseVertex;
  * @author yqi
  */
 public class Path implements BaseElementWithWeight {
-	
+
 	private List<BaseVertex> vertexList = new Vector<BaseVertex>();
 	private double weight = -1;
-	
+
 	public Path() {
-		
+
 	}
-	
+
 	public Path(List<BaseVertex> vertexList, double weight) {
 		this.vertexList = vertexList;
 		this.weight = weight;
-		
+
 	}
 
 	public double getWeight() {
 		return weight;
 	}
-	
+
 	public void setWeight(double weight) {
 		this.weight = weight;
 	}
-	
+
 	public List<BaseVertex> getVertexList() {
 		return vertexList;
 	}
-	
+
 	@SuppressWarnings("null")
-	public int getType(Problem prob){
-		int type=0;
-		if (this.vertexList.size()==2){
+	public int getType(Problem prob) {
+		int type = 0;
+		if (this.vertexList.size() == 2) {
 			if (prob.nodes.get(this.vertexList.get(0).getId()).isHub()
 					&& prob.nodes.get(this.vertexList.get(1).getId()).isHub())
 				type = 3;
-			else if(prob.nodes.get(this.vertexList.get(0).getId()).isHub())
+			else if (prob.nodes.get(this.vertexList.get(0).getId()).isHub())
 				type = 1;
 			else
-				type = 2;			
-		}else if(this.vertexList.size()==3){
-			if(!prob.nodes.get(this.vertexList.get(0).getId()).isHub()
+				type = 2;
+		} else if (this.vertexList.size() == 3) {
+			if (!prob.nodes.get(this.vertexList.get(0).getId()).isHub()
 					&& !(prob.nodes.get(this.vertexList.get(1).getId()).isHub()))
 				type = 6;
 			else if (!prob.nodes.get(this.vertexList.get(0).getId()).isHub())
 				type = 5;
 			else
 				type = 4;
-		}else if (this.vertexList.size()==4){
+		} else if (this.vertexList.size() == 4) {
 			type = 7;
-		}else{
-			System.out.println("the path is inconsistent: "+this);
+		} else {
+			System.out.println("the path is inconsistent: " + this);
 			return (Integer) null;
 		}
 		return type;
 	}
-	
-	public double getCost(Problem prob){
-		double cost=0;
+
+	public double getCost(Problem prob) {
+		double cost = 0;
 		double alpha;
-		for (int i=0; i<this.getVertexList().size()-1;i++){
+		for (int i = 0; i < this.getVertexList().size() - 1; i++) {
 			if (prob.hubsList.contains(prob.nodes.get(i))
-					&& prob.hubsList.contains(prob.nodes.get(i+1)))
-				alpha=prob.alpha;
+					&& prob.hubsList.contains(prob.nodes.get(i + 1)))
+				alpha = prob.alpha;
 			else
-				alpha=0;
-			cost+=(1-alpha)*prob.distance[this.getVertexList().get(i).getId()][this.getVertexList().get(i+1).getId()];
+				alpha = 0;
+			cost += (1 - alpha)
+					* prob.distance[this.getVertexList().get(i).getId()][this
+							.getVertexList().get(i + 1).getId()];
 		}
 		return cost;
 	}
-	
-	public double getFailProb(double q){
-		double p=q;
-		if (this.getVertexList().size()==4)
+
+	public double getFailProb(double q) {
+		double p = q;
+		if (this.getVertexList().size() == 4)
 			p = 2 * q - Math.pow(q, 2);
+		else if (this.getVertexList().size() == 2)
+			p = 0;
 		return p;
 	}
-	
+
 	@Override
 	public boolean equals(Object right) {
-		
+
 		if (right instanceof Path) {
 			Path rPath = (Path) right;
 			return vertexList.equals(rPath.vertexList);
@@ -132,7 +136,7 @@ public class Path implements BaseElementWithWeight {
 	public int hashCode() {
 		return vertexList.hashCode();
 	}
-	
+
 	public String toString() {
 		return vertexList.toString() + ":" + weight;
 	}

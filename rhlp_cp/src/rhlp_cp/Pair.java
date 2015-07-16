@@ -73,6 +73,39 @@ public class Pair {
 			return shortestPathsList;
 		}
 	}
+	
+	public List<Path> routes2(Problem prob) {
+		List<Path> shortestPathsList = new ArrayList<Path>();
+		Graph graph = new VariableGraph(this.origin, this.destination, prob);
+		if (prob.flow[this.origin.getIndex()][this.destination.getIndex()]==0){
+			
+			BaseVertex o=graph.getVertex(origin.getIndex());
+			BaseVertex d=graph.getVertex(destination.getIndex());
+			List<BaseVertex> tmp=new ArrayList<BaseVertex>();
+			tmp.add(o); tmp.add( d);
+			Path shortestPath=new Path(tmp, 0);
+			shortestPathsList.add(shortestPath);
+			return shortestPathsList;
+		}else{			
+			Set<Integer> failedHubs=new HashSet<Integer>();		
+			boolean hasNext=true;
+			int counter=0;
+			
+			while (failedHubs.size()<prob.nHub
+					&& hasNext && counter++<5){
+				graph = new VariableGraph(this.origin, this.destination, prob, failedHubs);
+			
+				YenTopKShortestPathsAlg yenAlg = new YenTopKShortestPathsAlg(graph);
+				tmpShortestPath tmp_shortest_paths_list = yenAlg.getShortestPaths(
+						graph.getVertex(this.origin.getIndex()),
+						graph.getVertex(this.destination.getIndex()));
+				shortestPathsList.addAll(tmp_shortest_paths_list.getShortestPaths());
+				failedHubs.addAll(tmp_shortest_paths_list.getFailedHubs());
+				hasNext=tmp_shortest_paths_list.hasNext();			
+			}
+			return shortestPathsList;
+		}
+	}
 
 	public Path getShortestRoute() {
 		return this.shortestPath;
@@ -81,6 +114,11 @@ public class Pair {
 	public List<Path> getRoutes(Problem prob) {
 		this.routes=routes(prob);
 		return this.routes;
+	}
+	
+	public double getDirectDistance (double[][] distance, double alpha){
+		double result = distance[this.origin.getIndex()][this.destination.getIndex()]*(1-alpha);		
+		return result;
 	}
 	
 	public String toString(){

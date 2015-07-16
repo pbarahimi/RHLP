@@ -23,17 +23,12 @@ public class Problem {
 	/**
 	 * Constructor 1
 	 * 
-	 * @param c
-	 *            coordinates filename
-	 * @param f
-	 *            flows filename
-	 * @param fC
-	 *            fixed charge filename
+	 * @param coordinates filename
+	 * @param flows filename
+	 * @param fixed charge filename
 	 * @param hubsList
-	 * @param alpha
-	 *            discount factor
-	 * @param q
-	 *            failure probability of a node
+	 * @param discount factor
+	 * @param failure probability of a node
 	 */
 	public Problem(String c, String f, String fC, int[] hubsList, double alpha,
 			double q) {
@@ -44,8 +39,9 @@ public class Problem {
 		this.pairs = new HashSet<Pair>();
 		this.coordinate = MyArray.read(c);
 		this.fixedCharge = MyArray.read2(fC);
-		this.distance = Distance.get(coordinate);
-		this.nVar = coordinate.length;
+//		this.distance = Distance.get(coordinate);
+		this.distance = MyArray.read(c);		// This reads the distances matrix directly from the file - CAB
+		this.nVar = this.distance.length;
 		this.flow = new double[nVar][nVar];
 		
 
@@ -89,9 +85,9 @@ public class Problem {
 
 	/** Constructor 2
 	 * 
-	 * @param c
-	 * @param f
-	 * @param fC
+	 * @param c, coordinates
+	 * @param f, flow
+	 * @param fC, fixed charge
 	 * @param alpha
 	 * @param q
 	 */
@@ -104,7 +100,8 @@ public class Problem {
 		this.hubsList = new HashSet<Node>();
 		this.coordinate = MyArray.read(c);
 		this.fixedCharge = MyArray.read2(fC);
-		this.distance = Distance.get(coordinate);
+//		this.distance = Distance.get(coordinate);
+		this.distance = MyArray.read(c); 			// This reads the distances matrix directly from the file - CAB
 		this.nVar = coordinate.length;
 		this.flow = MyArray.read(f);
 
@@ -151,6 +148,72 @@ public class Problem {
 	
 	/** Constructor 3
 	 * 
+	 * @param c
+	 * @param f
+	 * @param fC
+	 * @param alpha
+	 * @param q
+	 */
+	public Problem(String c, String f, String fC, double alpha, double q, Pair pair) {
+
+		this.q = q;
+		this.alpha = alpha;
+		this.nodes = new ArrayList<Node>();
+		this.pairs = new HashSet<Pair>();
+		this.hubsList = new HashSet<Node>();
+		this.coordinate = MyArray.read(c);
+		this.fixedCharge = MyArray.read2(fC);
+//		this.distance = Distance.get(coordinate);
+		this.distance = MyArray.read(c); 			// This reads the distances matrix directly from the file - CAB
+		this.nVar = coordinate.length;
+		this.flow = MyArray.read(f);
+
+		/** instantiating flows matrix */
+		double[][] tempFlows = MyArray.read(f);
+		for (int i = 0; i < nVar; i++) {
+			for (int j = 0; j < nVar; j++) {
+				this.flow[i][j] = tempFlows[i][j] + tempFlows[j][i];
+			}
+		}
+
+		/** instantiating nodes */
+		for (int i = 0; i < coordinate.length; i++) {
+			nodes.add(new Node(i, coordinate[i][0], coordinate[i][1], false));
+		}
+
+		/** assigning hubs */
+		for (Node node: this.nodes){
+			if (node.getIndex()!=pair.origin.getIndex() && node.getIndex()!=pair.destination.getIndex())
+				node.setHub();
+		}
+		
+		/** filling the hubs list*/
+		for (Node n:this.nodes){
+			if (n.isHub())
+				this.hubsList.add(n);
+		}
+
+		/** setting number of hubs */
+		int tempNHub = 0;
+		for (Node n : this.nodes) {
+			if (n.isHub())
+				tempNHub++;
+		}
+		this.nHub = tempNHub;
+
+		/** instantiating pairs */
+		for (Node o : nodes) {
+			for (Node d : nodes) {
+				if (o.getIndex() > d.getIndex()) {
+					this.pairs.add(new Pair(o, d, this));
+				}
+			}
+		}
+
+	}
+	
+	/** Constructor 4
+	 * 
 	 * @param other
 	 */
 
@@ -168,7 +231,7 @@ public class Problem {
 		this.q = other.q;
 	}
 
-	/** Constructor 4
+	/** Constructor 5
 	 * 
 	 * @param nodes
 	 */
@@ -185,6 +248,8 @@ public class Problem {
 		this.nHub=0;
 		this.flow = new double[nVar][nVar];
 	}
+	
+	
 	public void pHubAssign(List<Node> nodes) {
 		nodes.get(0).setHub();
 		nodes.get(1).setHub();
@@ -202,23 +267,34 @@ public class Problem {
 	 *         serving as both primary and backup routes.
 	 */
 	public double objFunLB() {
-		double objFun = 0;
-		int counter;
+		double objFun = this.nHub * this.fixedCharge[0];
 		double temp;
 		for (Pair pair : this.pairs) {
-			temp = 0;
-			counter = 0;
-			for (int i = 0; i < 1; i++) {
-				temp += (1 - pair.getShortestRoute().getFailProb(q))
-						* Math.pow(q, counter++);
-			}
+			temp = (1 - pair.getShortestRoute().getFailProb(q));
 			temp *= pair.flow * pair.getShortestRoute().getCost(this);
-			objFun += temp;
+			objFun += temp;			
 		}
-		objFun += this.nHub * this.fixedCharge[0];
 		return objFun;
 	}
 
+	/**
+	 * Objective function lower bound
+	 * 
+	 * @return The lower bound of the objective function with the direct distance
+	 *         serving as both primary and backup routes.
+	 */
+	public double objFunLB2() {
+		double objFun = 0;
+		double temp;
+		for (Pair pair : this.pairs) {
+			temp = pair.flow * pair.getDirectDistance(distance, this.alpha);
+			System.out.println(temp);
+			objFun += temp;			
+		}
+		objFun += this.nHub * this.fixedCharge[0];
+		return objFun;
+		}
+	
 	/**
 	 * Objective Function
 	 * 
@@ -242,7 +318,12 @@ public class Problem {
 		objFun += this.nHub * this.fixedCharge[0];
 		return objFun;
 	}
-
+ 
+	/**
+	 *  prints hubs' list
+	 * 
+	 */
+	
 	public void printHubs() {
 		String str = new String();
 		System.out.print("The hubs are: ");
